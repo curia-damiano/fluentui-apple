@@ -410,7 +410,7 @@ open class TableViewHeaderFooterView: UITableViewHeaderFooterView {
 
         if let leadingView = leadingView {
             let xOffset = Constants.accessoryViewMarginLeft
-            let yOffset = contentView.frame.height - leadingView.frame.height - Constants.titleDefaultBottomMargin
+            let yOffset = floor(titleYOffset + (titleHeight - leadingView.frame.height) / 2)
             leadingView.frame = CGRect(
                 origin: CGPoint(x: xOffset, y: yOffset),
                 size: leadingView.frame.size
@@ -432,6 +432,13 @@ open class TableViewHeaderFooterView: UITableViewHeaderFooterView {
                 origin: CGPoint(x: xOffset, y: yOffset),
                 size: accessoryView.frame.size
             )
+
+            // seems like an iOS issue that any subviews of the headerView automatically gets the header trait which isn't the behavior we want other than the titleView.
+            accessoryView.accessibilityTraits.remove(.header)
+            if let accessoryButton = accessoryView as? UIButton {
+                // unclear why just removing the .header traits remove the existing .button trait of the accessoryView but adding it back if needed
+                accessoryButton.accessibilityTraits.insert(.button)
+            }
         }
         contentView.flipSubviewsForRTL()
     }
